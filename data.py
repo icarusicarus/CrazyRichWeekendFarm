@@ -16,22 +16,34 @@ class Data:
         return self.value[1]
     def __str__(self):
         if self.type == 2:
-            # detail ver.
-            return "Object [Type: "+Types[(self.type)-1]+", Value: ("+str(self.car())+", "+str(self.cdr())+")]"
-            # testing ver.
-            #return "("+str(self.car())+", "+str(self.cdr())+")"
+            try:
+                if(self.cdr() == int(self.cdr())):
+                    return "("+str(self.car())+" . "+str(self.cdr())+")"
+            except:
+                retStr = '('
+                retStr+=str(self.car())
+                atom = self.cdr()
+                while(str(atom) != 'None'):
+                    if(atom.type == 2):
+                        retStr+=' . '
+                        retStr+=str(atom.car())
+                        atom = atom.cdr()
+                    else:
+                        retStr+=' . '
+                        retStr+=str(atom)
+                        break
+                retStr+=')'
+                return str(retStr)
+
         else:
-            # detail ver.
-            return "Object [Type: {type}, Value: {val}]".format(type=Types[(self.type)-1], val=self.value)
-            # testing ver.
-            #return str(self.value)
+            return str(self.value)
         #return "babo~ya"
 
 def cons(d1, d2):
-    return Data(2, (d1, d2))    # type 2: pair
+    return Data(2, (d1, d2))
 
 def mkint(n):
-    return Data(1, n)   # type 1: int
+    return Data(1, n)
 
 def mksym(s):
     return Data(4, s)
