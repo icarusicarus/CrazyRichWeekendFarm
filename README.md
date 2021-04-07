@@ -1,5 +1,6 @@
 # CrazyRichWeekendFarm
-Project 21 with prof. WG
+Project 21 with prof. WG.
+
 Our goal is to develop a Korean LISP Interpreter.
 
 ## What is the meaning of repository name?
