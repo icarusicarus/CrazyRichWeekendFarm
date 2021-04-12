@@ -114,6 +114,8 @@ def Parser(tokenlist):
         return "[ERROR} Empty List"
     LA = tokenlist.pop(0)
     if LA.type == T_Type.OP:
+        if tokenlist[0].type == T_Type.CP:
+            return nilp()
         L = []
         while tokenlist[0].type != T_Type.CP:
             L.append(Parser(tokenlist))
