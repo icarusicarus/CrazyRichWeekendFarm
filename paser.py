@@ -96,10 +96,13 @@ def Lexer(lists):
                 TokenList.append(Token(T_Type.SYM, 'GT'))
             elif(LA == '<'):
                 TokenList.append(Token(T_Type.SYM, 'LT'))
-            elif(isinstance(LA, int)):
-                TokenList.append(Token(T_Type.INT, LA))
             else:
-                TokenList.append(Token(T_Type.ID, LA))
+                try:
+                    iL = int(LA)
+                    isinstance(iL, int)
+                    TokenList.append(Token(T_Type.INT, iL))
+                except:
+                    TokenList.append(Token(T_Type.ID, LA))
 
     return TokenList
 
