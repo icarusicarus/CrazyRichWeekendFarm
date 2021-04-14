@@ -1,0 +1,25 @@
+{
+    "name": "korean-lisp",
+    "displayName": "korean-lisp",
+    "description": "Korean Lisp Language support to VSCode",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.55.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "scheme",
+            "aliases": ["scheme", "scheme"],
+            "extensions": [".scm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "scheme",
+            "scopeName": "source.scm",
+            "path": "./syntaxes/scheme.tmLanguage.json"
+        }]
+    }
+}
