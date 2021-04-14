@@ -12,8 +12,8 @@
     "contributes": {
         "languages": [{
             "id": "scheme",
-            "aliases": ["scheme", "scheme"],
-            "extensions": [".scm"],
+            "aliases": ["scheme", "Scheme"],
+            "extensions": [".scm", ".ss", "rkt", "lisp"],
             "configuration": "./language-configuration.json"
         }],
         "grammars": [{
