@@ -21,5 +21,11 @@
             "scopeName": "source.scm",
             "path": "./syntaxes/scheme.tmLanguage.json"
         }]
-    }
+    },
+    "snippets": [
+        {
+            "language": "scheme",
+            "path": "./snippets/snippets.json"
+        }
+    ]
 }
