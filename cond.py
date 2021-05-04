@@ -17,6 +17,7 @@ class ErrorType(Enum):
     NO_INPUT_FILE = "No Input File"
     ERROR_OK = "No Error"
     ERROR_SYNTAX = "Syntax Error"
+    ERROR_ARGS = "Error Args"
 
 
 class Error(Exception):
@@ -313,15 +314,10 @@ class Bindings:
     def __init__(self, parent):
         self.parent = parent
         self.symbols = dict()
-        # self.children_list = []
-        # # 부모 -> 자식으로 가는경우
 
     def add_symbol(self, symbol, value):
         if symbol.type == Type.SYM:
             self.symbols[symbol.value.upper()] = value
-
-    # def add_child(self, child):
-    #     self.children_list.append(child)
 
     def __str__(self):
         if isNil(self.parent):
@@ -335,8 +331,6 @@ class Bindings:
 
 def env_create(parent):
     new_bindings = Bindings(parent)
-    # if not isNil(parent):
-    #     parent.add_child(new_bindings)
     return new_bindings
 
 
@@ -349,14 +343,14 @@ def env_get(env, symbol):
     if type(parent) is Bindings:
         pass
     elif isNil(parent):
-        return "Error unbound", nilp()
+        return ErrorType.UNEXPECTED_TOKEN, nilp()
 
     return env_get(parent, symbol)
 
 
 def env_set(env, symbol, value):
     env.add_symbol(symbol, value)
-    return ErrorType.ERROR_OK
+    return ErrorType.ERROR_OK, nilp()
 
 
 def listp(expr):
@@ -380,25 +374,23 @@ def eval_expr(expr, env):
     args = expr.cdr()
 
     if op.type == Type.SYM:
-        env_val = env_get(env, op)
-
         if op.value.upper() == "QUOTE":
             if isNil(args) or not isNil(args.cdr()):
-                return "Error_Args", nilp()
-            return "Error_OK", args.car()
+                return ErrorType.ERROR_ARGS, nilp()
+            return ErrorType.ERROR_OK, args.car()
         elif op.value.upper() == "DEF":
             if isNil(args) or isNil(args.cdr()) or not isNil(args.cdr().cdr()):
-                return "Error_Args", nilp()
+                return ErrorType.ERROR_ARGS, nilp()
             sym = args.car()
             if sym.type != Type.SYM:
-                return "Error_Type", nilp()
-            err, val = eval_expr(args.cdr().car(), env)
+                return ErrorType.ID_INVALID_TOKEN, nilp()
+            val = eval_expr(args.cdr().car(), env)
 
             env_set(env, sym, val)
-            return "Error_OK", sym
+            return ErrorType.ERROR_OK, sym
         elif op.value.upper() == "LAM":
             if isNil(args) or isNil(args.cdr()):
-                return "Error_Type", nilp()
+                return ErrorType.ID_INVALID_TOKEN, nilp()
             return mk_closure(env, args.car(), args.cdr())
         elif op.value.upper() == "IF":
             if (
@@ -407,29 +399,25 @@ def eval_expr(expr, env):
                 or isNil(args.cdr().cdr())
                 or not isNil(args.cdr().cdr().cdr())
             ):
-                return "Error_Args", nilp()
+                return ErrorType.ERROR_ARGS, nilp()
             err, result = eval_expr(args.car(), env)
-            if isNil(result):
-                val = args.cdr().cdr().car()
-            else:
-                val = args.cdr().car()
-
-            return "Error_OK", eval_expr(val, env)
-        # elif env_val and env_val.type == Type.BUILTIN:
-        #     return apply(env_val, args)
+            if err != ErrorType.ERROR_OK:
+                return err, nilp()
+            val = args.cdr().cdr().car() if isNil(result) else args.cdr().car()
+            return eval_expr(val, env)
     err, op = eval_expr(op, env)
-    # if err:
-    #     return err
+    if err != ErrorType.ERROR_OK:
+        return err, nilp()
     args = copy_list(args)
     p = args
     while not isNil(p):
         err, p.value[0] = eval_expr(p.car(), env)
-        # if err:
-        #     return err
+        if err != ErrorType.ERROR_OK:
+            return err, nilp()
         p = p.cdr()
     return apply(op, args)
 
-    return "Error_Syntax", nilp()
+    return ErrorType.ERROR_SYNTAX, nilp()
 
 
 def make_builtin(fn):
@@ -457,9 +445,9 @@ def copy_list(lst):
 
 def apply(fn, args):
     if fn.type == Type.BUILTIN:
-        return "Error OK", fn.value(args)
+        return ErrorType.ERROR_OK, fn.value(args)
     elif fn.type != Type.CLOSURE:
-        return "Error_Type", nilp()
+        return ErrorType.ID_INVALID_TOKEN, nilp()
 
     env = env_create(fn.car())
     params = fn.cdr().car()
@@ -467,117 +455,97 @@ def apply(fn, args):
 
     while not isNil(params):
         if isNil(args):
-            return "Error_Args", nilp()
+            return ErrorType.ERROR_ARGS, nilp()
         env_set(env, params.car(), args.car())
         params = params.cdr()
         args = args.cdr()
 
     if not isNil(args):
-        return "Error_Args", nilp()
+        return ErrorType.ERROR_ARGS, nilp()
 
     while not isNil(body):
-        result = eval_expr(body.car(), env)
+        err, result = eval_expr(body.car(), env)
+        if err != ErrorType.ERROR_OK:
+            return err, nilp()
         body = body.cdr()
 
-    return "Error_OK", result
+    return ErrorType.ERROR_OK, result
 
 
 def mk_closure(env, params, body):
     if not listp(params) or not listp(body):
-        return "Error_Type", nilp()
+        return ErrorType.ID_INVALID_TOKEN, nilp()
 
     p = params
 
     while not isNil(p):
         if p.car().type != Type.SYM:
-            return "Error_Type", nilp()
+            return ErrorType.ID_INVALID_TOKEN, nilp()
         p = p.cdr()
 
     result = cons(env, cons(params, body))
     result.type = Type.CLOSURE
 
-    return "Error_OK", result
+    return ErrorType.ERROR_OK, result
 
 
 def builtin_car(args):
-    return "Error OK", args.car()
-    # if isNil(args) or not isNil(args.cdr()):
-    #     return "Error Args", nilp()
-    #
-    # if isNil(args.car()):
-    #     return "Error OK", nilp()
-    # elif args.car().type != Type.PAIR:
-    #     return "Error Type", nilp()
-    # else:
-    #     return "Error OK", args.car().car()
+    return ErrorType.ERROR_OK, args.car()
 
 
 def builtin_cdr(args):
-    return "Error OK", args.cdr()
-    # if isNil(args) or not isNil(args.cdr):
-    #     return "Error Args", nilp()
-    #
-    # if isNil(args.car()):
-    #     return "Error OK", nilp()
-    # elif args.car().type != Type.PAIR:
-    #     return "Error Type", nilp()
-    # else:
-    #     return "Error OK", args.car().cdr()
+    return ErrorType.ERROR_OK, args.cdr()
 
 
 def builtin_cons(args):
     if isNil(args) or isNil(args.cdr()) or not isNil(args.cdr().cdr()):
-        return "Error Args", nilp()
-    return "Error OK", cons(args.car(), args.cdr())
+        return ErrorType.ERROR_ARGS, nilp()
+    return ErrorType.ERROR_OK, cons(args.car(), args.cdr())
 
 
 def builtin_plus(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         var = (args.car().value) + (args.cdr().car().value)
-        return "Error OK", mkint(var)
-    return "Error Args", nilp()
+        return ErrorType.ERROR_OK, mkint(var)
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 def builtin_minus(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         var = (args.car().value) - (args.cdr().car().value)
-        return "Error OK", mkint(var)
-    return "Error Args", nilp()
+        return ErrorType.ERROR_OK, mkint(var)
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 def builtin_multi(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         var = (args.car().value) * (args.cdr().car().value)
-        return "Error OK", mkint(var)
-    return "Error Args", nilp()
+        return ErrorType.ERROR_OK, mkint(var)
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 def builtin_divide(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         if args.cdr().car().value != 0:
             var = (args.car().value) / (args.cdr().car().value)
-            return "Error OK", mkint(var)
+            return ErrorType.ERROR_OK, mkint(var)
         else:
-            return "Divide Zero Error", nilp()
-    return "Error Args", nilp()
+            return ErrorType.UNEXPECTED_TOKEN, nilp()
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 def builtin_numeq(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         if args.car().value == args.cdr().car().value:
-            return "Error OK", mksym("T")
-        else:
-            return "Error OK", nilp()
-    return "Error Args", nilp()
+            return ErrorType.ERROR_OK, mksym("T")
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 def builtin_less(args):
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
         if args.car().value < args.cdr().car().value:
-            return "Error OK", mksym("T")
-        else:
-            return "Error OK", nilp()
-    return "Error Args", nilp()
+            return ErrorType.ERROR_OK, mksym("T")
+    return ErrorType.ERROR_ARGS, nilp()
 
 
 if __name__ == "__main__":
@@ -600,4 +568,9 @@ if __name__ == "__main__":
         # print("\n===== === PAR === =====")
         # print(parsedlist)
         # print("===== === OUT === =====")
-        print(eval_expr(parsedlist, env))
+        err, result = eval_expr(parsedlist, env)
+
+        if err != ErrorType.ERROR_OK:
+            print(err)
+        else:
+            print(result)
