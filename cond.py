@@ -65,6 +65,8 @@ class Keyword(Enum):
     DEF = 12
     EQ_OP = 13
     LESS_OP = 14
+    IF = 15
+    QUOTE = 16
 
 
 class Data:
@@ -196,6 +198,18 @@ class Lexer:
                 lexR.append(Token(")", Keyword.RPAREN))
                 self.jmp()
 
+            elif self.currentToken == ";":
+                flag = 3
+                while flag:
+                    self.jmp()
+                    if self.currentToken == ".":
+                        flag = flag - 1
+                        pass
+                    else:
+                        break
+                lexR.append(Token("Nil", Type.NIL))
+                return lexR
+
             elif self.currentToken.isalpha():
                 id = ""
                 while self.currentToken.isalpha() and self.currentToken is not None:
@@ -205,9 +219,9 @@ class Lexer:
                             pass
                         else:
                             break
-                if id == "lambda":
+                if id == "람다":
                     lexR.append(Token("LAM", Keyword.LAMBDA))
-                elif id == "define":
+                elif id == "정의":
                     lexR.append(Token("DEF", Keyword.DEF))
                 elif id == "Nil":
                     lexR.append(Token("NIL", Type.NIL))
@@ -374,7 +388,8 @@ def eval_expr(expr, env):
     args = expr.cdr()
 
     if op.type == Type.SYM:
-        if op.value.upper() == "QUOTE":
+        env_val = env_get(env, op)
+        if op.value.upper() == "쿼트":
             if isNil(args) or not isNil(args.cdr()):
                 return ErrorType.ERROR_ARGS, nilp()
             return ErrorType.ERROR_OK, args.car()
@@ -392,7 +407,7 @@ def eval_expr(expr, env):
             if isNil(args) or isNil(args.cdr()):
                 return ErrorType.ID_INVALID_TOKEN, nilp()
             return mk_closure(env, args.car(), args.cdr())
-        elif op.value.upper() == "IF":
+        elif op.value.upper() == "만약":
             if (
                 isNil(args)
                 or isNil(args.cdr())
@@ -535,9 +550,14 @@ def builtin_divide(args):
 
 
 def builtin_numeq(args):
+    print(args.car())
+    print(args.cdr().car())
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
+
         if args.car().value == args.cdr().car().value:
             return ErrorType.ERROR_OK, mksym("T")
+        else:
+            return ErrorType.ERROR_OK, nilp()
     return ErrorType.ERROR_ARGS, nilp()
 
 
@@ -551,9 +571,9 @@ def builtin_less(args):
 if __name__ == "__main__":
     env = env_create(nilp())
 
-    env_set(env, mksym("CAR"), make_builtin(builtin_car))
-    env_set(env, mksym("CDR"), make_builtin(builtin_cdr))
-    env_set(env, mksym("CONS"), make_builtin(builtin_cons))
+    env_set(env, mksym("머리"), make_builtin(builtin_car))
+    env_set(env, mksym("꼬리"), make_builtin(builtin_cdr))
+    env_set(env, mksym("쌍쌍"), make_builtin(builtin_cons))
     env_set(env, mksym("+"), make_builtin(builtin_plus))
     env_set(env, mksym("-"), make_builtin(builtin_minus))
     env_set(env, mksym("*"), make_builtin(builtin_multi))
