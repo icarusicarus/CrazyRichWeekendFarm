@@ -584,14 +584,38 @@ if __name__ == "__main__":
     env_set(env, mksym("T"), mksym("T"))
     env_set(env, mksym("nil"), nilp())
 
-    while True:
-        parsedlist = Parser(Lexer(Input()._input()).lex())
-        # print("\n===== === PAR === =====")
-        # print(parsedlist)
-        # print("===== === OUT === =====")
-        err, result = eval_expr(parsedlist, env)
+    if len(sys.argv) == 2:
+        if os.path.isfile(sys.argv[1]):
+            f = open(sys.argv[1], "r", encoding="utf-8")
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                parsedlist = Parser(Lexer(line).lex())
+                err, result = eval_expr(parsedlist, env)
 
-        if err != ErrorType.ERROR_OK:
-            print(err)
+                if err != ErrorType.ERROR_OK:
+                    print(err)
+                else:
+                    print(">> {result}".format(result=result))
+            f.close()
         else:
-            print(result)
+            print('No file "{file}" found.'.format(file=sys.argv[1]))
+
+    elif len(sys.argv) == 1:
+        while True:
+            parsedlist = Parser(Lexer(Input()._input()).lex())
+            # print("\n===== === PAR === =====")
+            # print(parsedlist)
+            # print("===== === OUT === =====")
+            err, result = eval_expr(parsedlist, env)
+
+            if err != ErrorType.ERROR_OK:
+                print(err)
+            else:
+                print(result)
+
+    else:
+        print(
+            "Usage for Interpreter: kscheme.exe\nUsage for File:        ksheme.exe [scm file]"
+        )
