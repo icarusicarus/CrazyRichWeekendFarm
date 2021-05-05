@@ -1,6 +1,6 @@
-# korean-lisp README
+# k-scheme README
 
-This is the README for your extension "korean-lisp". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "k-scheme". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
