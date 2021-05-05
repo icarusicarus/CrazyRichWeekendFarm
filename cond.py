@@ -1,3 +1,5 @@
+import sys
+import os
 from enum import Enum
 
 
@@ -357,7 +359,7 @@ def env_get(env, symbol):
     if type(parent) is Bindings:
         pass
     elif isNil(parent):
-        return ErrorType.UNEXPECTED_TOKEN, nilp()
+        return nilp()
 
     return env_get(parent, symbol)
 
@@ -388,7 +390,6 @@ def eval_expr(expr, env):
     args = expr.cdr()
 
     if op.type == Type.SYM:
-        env_val = env_get(env, op)
         if op.value.upper() == "쿼트":
             if isNil(args) or not isNil(args.cdr()):
                 return ErrorType.ERROR_ARGS, nilp()
@@ -399,7 +400,8 @@ def eval_expr(expr, env):
             sym = args.car()
             if sym.type != Type.SYM:
                 return ErrorType.ID_INVALID_TOKEN, nilp()
-            val = eval_expr(args.cdr().car(), env)
+
+            err, val = eval_expr(args.cdr().car(), env)
 
             env_set(env, sym, val)
             return ErrorType.ERROR_OK, sym
@@ -420,6 +422,7 @@ def eval_expr(expr, env):
                 return err, nilp()
             val = args.cdr().cdr().car() if isNil(result) else args.cdr().car()
             return eval_expr(val, env)
+
     err, op = eval_expr(op, env)
     if err != ErrorType.ERROR_OK:
         return err, nilp()
@@ -427,9 +430,9 @@ def eval_expr(expr, env):
     p = args
     while not isNil(p):
         err, p.value[0] = eval_expr(p.car(), env)
-        if err != ErrorType.ERROR_OK:
-            return err, nilp()
+
         p = p.cdr()
+
     return apply(op, args)
 
     return ErrorType.ERROR_SYNTAX, nilp()
@@ -440,6 +443,23 @@ def make_builtin(fn):
     a.type = Type.BUILTIN
     a.value = fn
     return a
+
+
+def mk_closure(env, params, body):
+    if not listp(params) or not listp(body):
+        return ErrorType.ID_INVALID_TOKEN, nilp()
+
+    p = params
+
+    while not isNil(p):
+        if p.car().type != Type.SYM:
+            return ErrorType.ID_INVALID_TOKEN, nilp()
+        p = p.cdr()
+
+    result = cons(env, cons(params, body))
+    result.type = Type.CLOSURE
+
+    return ErrorType.ERROR_OK, result
 
 
 def copy_list(lst):
@@ -460,7 +480,7 @@ def copy_list(lst):
 
 def apply(fn, args):
     if fn.type == Type.BUILTIN:
-        return ErrorType.ERROR_OK, fn.value(args)
+        return fn.value(args)
     elif fn.type != Type.CLOSURE:
         return ErrorType.ID_INVALID_TOKEN, nilp()
 
@@ -483,23 +503,6 @@ def apply(fn, args):
         if err != ErrorType.ERROR_OK:
             return err, nilp()
         body = body.cdr()
-
-    return ErrorType.ERROR_OK, result
-
-
-def mk_closure(env, params, body):
-    if not listp(params) or not listp(body):
-        return ErrorType.ID_INVALID_TOKEN, nilp()
-
-    p = params
-
-    while not isNil(p):
-        if p.car().type != Type.SYM:
-            return ErrorType.ID_INVALID_TOKEN, nilp()
-        p = p.cdr()
-
-    result = cons(env, cons(params, body))
-    result.type = Type.CLOSURE
 
     return ErrorType.ERROR_OK, result
 
@@ -550,8 +553,6 @@ def builtin_divide(args):
 
 
 def builtin_numeq(args):
-    print(args.car())
-    print(args.cdr().car())
     if (args.car().type == Type.INT) and (args.cdr().car().type == Type.INT):
 
         if args.car().value == args.cdr().car().value:
