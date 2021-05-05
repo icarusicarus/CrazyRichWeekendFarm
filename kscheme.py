@@ -209,8 +209,7 @@ class Lexer:
                         pass
                     else:
                         break
-                lexR.append(Token("Nil", Type.NIL))
-                return lexR
+                break
 
             elif self.currentToken.isalpha():
                 id = ""
@@ -588,32 +587,43 @@ if __name__ == "__main__":
         if os.path.isfile(sys.argv[1]):
             f = open(sys.argv[1], "r", encoding="utf-8")
             while True:
-                line = f.readline()
-                if not line:
-                    break
-                parsedlist = Parser(Lexer(line).lex())
-                err, result = eval_expr(parsedlist, env)
+                try:
+                    line = f.readline()
+                    if not line:
+                        break
+                    parsedlist = Parser(Lexer(line).lex())
+                    err, result = eval_expr(parsedlist, env)
 
-                if err != ErrorType.ERROR_OK:
-                    print(err)
-                else:
-                    print(">> {result}".format(result=result))
+                    if err != ErrorType.ERROR_OK:
+                        print(err)
+                    else:
+                        print(">> {result}".format(result=result))
+
+                except Error:
+                    pass
+                except IndexError:
+                    print("여러줄 입력 구현해야해요")
             f.close()
         else:
             print('No file "{file}" found.'.format(file=sys.argv[1]))
 
     elif len(sys.argv) == 1:
         while True:
-            parsedlist = Parser(Lexer(Input()._input()).lex())
-            # print("\n===== === PAR === =====")
-            # print(parsedlist)
-            # print("===== === OUT === =====")
-            err, result = eval_expr(parsedlist, env)
+            try:
+                parsedlist = Parser(Lexer(Input()._input()).lex())
+                # print("\n===== === PAR === =====")
+                # print(parsedlist)
+                # print("===== === OUT === =====")
+                err, result = eval_expr(parsedlist, env)
 
-            if err != ErrorType.ERROR_OK:
-                print(err)
-            else:
-                print(result)
+                if err != ErrorType.ERROR_OK:
+                    print(err)
+                else:
+                    print(result)
+            except Error:
+                pass
+            except IndexError:
+                print("여러줄 입력 구현해야해요")
 
     else:
         print(
