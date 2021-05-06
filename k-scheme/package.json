@@ -2,13 +2,23 @@
 	"name": "k-scheme",
 	"displayName": "K-Scheme",
 	"description": "Extension for Korean Scheme",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.55.0"
+	},
+	"publisher": "icarus",
+	"icon": "kscheme.png",
+	"license": "MIT",
+	"author": {
+		"name": "Icarus"
 	},
 	"categories": [
 		"Snippets"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/icaruswithoutwings/CrazyRichWeekendFarm.git"
+	},
 	"activationEvents": [
 		"onCommand:k-scheme.helloWorld"
 	],
@@ -30,10 +40,24 @@
 				"configuration": "./scheme.configuration.json"
 			}
 		],
+		"grammars": [
+			{
+				"language": "scheme",
+				"scopeName": "source.scheme",
+				"path": "./syntaxes/scheme.tmLanguage"
+			},
+			{
+				"scopeName": "markdown.scheme.codeblock",
+				"path": "./syntaxes/scheme.markdown.tmLanguage.json",
+				"injectTo": [
+					"text.html.markdown"
+				]
+			}
+		],
 		"snippets": [
 			{
 				"language": "scheme",
-				"path": "./snippets.json"
+				"path": "./snippets/snippets.json"
 			}
 		]
 	},
