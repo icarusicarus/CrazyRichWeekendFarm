@@ -591,9 +591,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:  # 파일 입력 시
         if os.path.isfile(sys.argv[1]):
             f = open(sys.argv[1], "r", encoding="utf-8")
+            line = f.readline()
             while True:
                 try:
-                    line = f.readline()
                     if not line:
                         break
                     parsedlist = Parser(Lexer(line).lex())
@@ -603,11 +603,14 @@ if __name__ == "__main__":
                         print(err)
                     else:
                         print(">> {result}".format(result=result))
-
+                    line = f.readline()
                 except Error:
-                    pass
+                    line = f.readline()
                 except IndexError:
-                    print("여러줄 입력 구현해야해요")
+                    tmp = input("... ")
+                    if tmp == "":
+                        break
+                    line += tmp
             f.close()
         else:
             print('No file "{file}" found.'.format(file=sys.argv[1]))
@@ -625,7 +628,7 @@ if __name__ == "__main__":
                     print(result)
                 line = input(">> ")
             except Error:
-                pass
+                line = input(">> ")
             except IndexError:
                 tmp = input("... ")
                 if tmp == "" or tmp == ":종료":
