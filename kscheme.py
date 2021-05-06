@@ -583,7 +583,12 @@ if __name__ == "__main__":
     env_set(env, mksym("T"), mksym("T"))
     env_set(env, mksym("nil"), nilp())
 
-    if len(sys.argv) == 2:
+    print(
+        "|-----------------------------------------------------------------------|\n|    o   \ o /  _ o         __|    \ /     |__        o _  \ o /   o    |\n|   /|\    |     /\   ___\o   \o    |    o/    o/__   /\     |    /|\   |\n|   / \   / \   | \  /)  |    ( \  /o\  / )    |  (\  / |   / \   / \   |\n|-----------------------------------------------------------------------|\n"
+    )
+    print("한글 스킴 인터프리터에 오신 것을 환영합니다.\n종료를 원할 시 ':종료'를 입력해주세요.")
+
+    if len(sys.argv) == 2:  # 파일 입력 시
         if os.path.isfile(sys.argv[1]):
             f = open(sys.argv[1], "r", encoding="utf-8")
             while True:
@@ -607,23 +612,25 @@ if __name__ == "__main__":
         else:
             print('No file "{file}" found.'.format(file=sys.argv[1]))
 
-    elif len(sys.argv) == 1:
-        while True:
+    elif len(sys.argv) == 1:  # 인터프리터 실행 시
+        line = input(">> ")
+        while line != ":종료":
             try:
-                parsedlist = Parser(Lexer(Input()._input()).lex())
-                # print("\n===== === PAR === =====")
-                # print(parsedlist)
-                # print("===== === OUT === =====")
+                parsedlist = Parser(Lexer(line).lex())
                 err, result = eval_expr(parsedlist, env)
 
                 if err != ErrorType.ERROR_OK:
                     print(err)
                 else:
                     print(result)
+                line = input(">> ")
             except Error:
                 pass
             except IndexError:
-                print("여러줄 입력 구현해야해요")
+                tmp = input("... ")
+                if tmp == "" or tmp == ":종료":
+                    break
+                line += tmp
 
     else:
         print(
