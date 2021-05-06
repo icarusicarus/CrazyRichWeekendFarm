@@ -1,5 +1,5 @@
 # CrazyRichWeekendFarm
-<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/welcome.PNG">
+<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/welcome.png">
 
 
 This is a Korean Scheme Interpreter and the VSCode Extension that provides it.
@@ -88,12 +88,12 @@ VSCode Extension support snippet and syntax highlighting.(But It needs to be rev
 
 - Interpreter
 
-<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/usage1.PNG">
+<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/usage1.gif">
 
 
 - Using file input
 
-<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/usage2.PNG">
+<img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/usage2.gif">
 
 
 
