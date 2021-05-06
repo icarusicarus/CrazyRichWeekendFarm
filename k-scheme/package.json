@@ -7,17 +7,33 @@
 		"vscode": "^1.55.0"
 	},
 	"categories": [
-		"Other"
+		"Snippets"
 	],
 	"activationEvents": [
 		"onCommand:k-scheme.helloWorld"
 	],
 	"main": "./extension.js",
 	"contributes": {
-		"commands": [
+		"languages": [
 			{
-				"command": "k-scheme.helloWorld",
-				"title": "Hello World"
+				"id": "scheme",
+				"aliases": [
+					"Scheme",
+					"scheme"
+				],
+				"extensions": [
+					".scm",
+					".ss",
+					".sch",
+					".rkt"
+				],
+				"configuration": "./scheme.configuration.json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "scheme",
+				"path": "./snippets.json"
 			}
 		]
 	},

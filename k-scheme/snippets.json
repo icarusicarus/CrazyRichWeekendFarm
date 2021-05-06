@@ -1,0 +1,45 @@
+{
+    "define": {
+        "prefix": "define",
+        "body": [
+            "(정의 ${1:name} ${2:parameters})"
+        ],
+        "description": "Code snippet for define statement"
+    },
+    "if": {
+        "prefix": "if",
+        "body": "(만약 ${1:predicate} ${2:true_condition} ${3:false_condition})",
+        "description": "Code snippet for an if statement",
+        "scope": "source.scheme"
+    },
+    "lambda": {
+        "prefix": "lam",
+        "body": "(람다 (${1:arg_id}) ${2:body})",
+        "description": "Code snippet for lambda expression",
+        "scope": "source.scheme"
+    },
+    "quote": {
+        "prefix": "quote",
+        "body": "(쿼트 $1)",
+        "description": "Code snippet for quote expression",
+        "scope": "source.scheme"
+    },
+    "cons": {
+        "prefix": "cons",
+        "body": "(쌍쌍 ${1:car} ${2:cdr})",
+        "description": "Code snippet for cons expression",
+        "scope": "source.scheme"
+    },
+    "car": {
+        "prefix": "car",
+        "body": "(머리 ${1:pair})",
+        "description": "Code snippet for car expression",
+        "scope": "source.scheme"
+    },
+    "cdr": {
+        "prefix": "cdr",
+        "body": "(꼬리 ${1:pair})",
+        "description": "Code snippet for cdr expression",
+        "scope": "source.scheme"
+    }
+}
