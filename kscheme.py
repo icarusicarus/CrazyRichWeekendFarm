@@ -607,7 +607,7 @@ if __name__ == "__main__":
                 except Error:
                     line = f.readline()
                 except IndexError:
-                    tmp = input("... ")
+                    tmp = f.readline()
                     if tmp == "":
                         break
                     line += tmp
