@@ -106,6 +106,13 @@ VSCode Extension support snippet and syntax highlighting.(But It needs to be rev
 
 
 
+## Video: How to install & use
+[![install and use](https://img.youtube.com/vi/OO3i8hGf11Y/0.jpg)](https://youtu.be/OO3i8hGf11Y)
+
+
+
+
+
 ## Lisence
 
 
