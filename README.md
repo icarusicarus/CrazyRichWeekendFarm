@@ -1,5 +1,6 @@
 # CrazyRichWeekendFarm
 <img src="https://github.com/icaruswithoutwings/CrazyRichWeekendFarm/blob/main/Images/welcome.png">
+Check my journey here https://pllab.tistory.com/category/kos
 
 
 This is a Korean Scheme Interpreter and the VSCode Extension that provides it.
